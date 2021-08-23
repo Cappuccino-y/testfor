@@ -1,8 +1,14 @@
 import collections
-import random
+from random import random
+from random import choice
+from array import array
 import math
 import os
 import numpy as np
+import bisect
+import copy
+import sys
+
 Card = collections.namedtuple('Card', 'rank suit')
 
 class FrenchDeck:
@@ -19,7 +25,7 @@ class FrenchDeck:
         return self._cards[position]
 
 deck = FrenchDeck()
-c=random.choice(deck)
+c=choice(deck)
 suit_value=dict(spades=3,hearts=2,diamonds=1,clubs=0)
 
 def spades_high(card):
@@ -61,4 +67,31 @@ example1=dict(location='beijing',university='beihang')
 cd=example1.items()
 
 zarten = np.array([[1,2,3,4], [4,5,6,7], [7,8,9,10]])
-print(zarten[[0,2],[0,1]])
+print(zarten[[0,2],:][:,[0,1]])
+
+class HauntedBus:
+    def __init__(self,passengers=[]):
+        self.passebgers=list(passengers)
+    def pick(self,name):
+        self.passebgers.append(name)
+    def drop(self,name):
+        self.passengers.remove(name)
+
+bus1=HauntedBus()
+bus1.pick('Alex')
+bus2=HauntedBus()
+
+print(sys.argv[0])
+print(sys.argv[-1])
+print(sys.argv)
+
+floats=array('d',(random() for i in range(10**7)))
+fp=open('floats1.bin','wb')
+floats.tofile(fp)
+fp.close()
+floats2=array('d')
+fp=open('floats1.bin','rb')
+floats2.fromfile(fp,len(floats))
+fp.close()
+
+
