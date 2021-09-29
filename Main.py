@@ -12,6 +12,8 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 
+os.environ["CUDA_VISIBLE_DEVICES"]='0,3,4'
+
 tr_path = 'covid.train.csv'  # path to training data
 tt_path = 'covid.test.csv'   # path to testing data
 
@@ -22,6 +24,8 @@ np.random.seed(myseed)
 torch.manual_seed(myseed)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(myseed)
+ava=torch.cuda.is_available()
+print(ava)
 
 #获取当前设备是否可用
 def get_device():
@@ -82,7 +86,7 @@ class COVID19Dataset(Dataset):
         with open(path, 'r') as fp:
             data = list(csv.reader(fp))
             data = np.array(data[1:])[:, 1:].astype(float)
-np.save
+
         if not target_only:
             feats = list(range(93))
         else:
@@ -167,7 +171,7 @@ class NeuralNet(nn.Module):
         # TODO: you may implement L1/L2 regularization here
         return self.criterion(pred, target)**0.5
 
-def train(tr_set, dv_set, model, config, device):
+def train(tr_set, dv_set, model, config, device,model_1):
     ''' DNN training '''
 
     n_epochs = config['n_epochs']  # Maximum number of epochs
@@ -189,13 +193,13 @@ def train(tr_set, dv_set, model, config, device):
             optimizer.zero_grad()               # set gradient to zero
             x, y = x.to(device), y.to(device)   # move data to device (cpu/cuda)
             pred = model(x)                     # forward pass (compute output)
-            mse_loss = model.cal_loss(pred, y)  # compute loss
+            mse_loss = model_1.cal_loss(pred, y)  # compute loss
             mse_loss.backward()                 # compute gradient (backpropagation)
             optimizer.step()                    # update model with optimizer
             loss_record['train'].append(mse_loss.detach().cpu().item())
 
         # After each epoch, test your model on the validation (development) set.
-        dev_mse = dev(dv_set, model, device)
+        dev_mse = dev(dv_set, model, device,model_1)
         if dev_mse < min_mse:
             # Save model if your model improved
             min_mse = dev_mse
@@ -215,14 +219,14 @@ def train(tr_set, dv_set, model, config, device):
     print('Finished training after {} epochs'.format(epoch))
     return min_mse, loss_record
 
-def dev(dv_set, model, device):
+def dev(dv_set, model, device,model_1):
     model.eval()                                # set model to evalutation mode
     total_loss = 0
     for x, y in dv_set:                         # iterate through the dataloader
         x, y = x.to(device), y.to(device)       # move data to device (cpu/cuda)
         with torch.no_grad():                   # disable gradient calculation
             pred = model(x)                     # forward pass (compute output)
-            mse_loss = model.cal_loss(pred, y)  # compute loss
+            mse_loss = model_1.cal_loss(pred, y)  # compute loss
         total_loss += mse_loss.detach().cpu().item() * len(x)  # accumulate loss
     total_loss = total_loss / len(dv_set.dataset)              # compute averaged loss
 
@@ -241,7 +245,7 @@ def test(tt_set, model, device):
 
 config = {
     'n_epochs': 3000,                # maximum number of epochs
-    'batch_size': 128,               # mini-batch size for dataloader
+    'batch_size': 200,               # mini-batch size for dataloader
     'optimizer': 'Adam',              # optimization algorithm (optimizer in torch.optim)
     'optim_hparas': {                # hyper-parameters for the optimizer (depends on which optimizer you are using)
         'lr': 0.005,
@@ -249,7 +253,7 @@ config = {
     },
     'early_stop': 200,               # early stopping epochs (the number epochs since your model's last improvement)
     'save_path': 'models/model.pth',  # your model will be saved here
-    'weight_pu':0.02
+    'weight_pu':0.05
 }
 
 device = get_device()                 # get the current available device ('cpu' or 'cuda')
@@ -260,7 +264,8 @@ tr_set = prep_dataloader(tr_path, 'train', config['batch_size'], target_only=tar
 dv_set = prep_dataloader(tr_path, 'dev', config['batch_size'], target_only=target_only)
 tt_set = prep_dataloader(tt_path, 'test', config['batch_size'], target_only=target_only)
 
-model = NeuralNet(tr_set.dataset.dim).to(device)  # Construct model and move to device
+model_1=NeuralNet(tr_set.dataset.dim).to(device)
+model = nn.DataParallel(model_1).cuda()  # Construct model and move to device
 weight_p, bias_p = [],[]
 for name, p in model.named_parameters():
   if 'bias' in name:
@@ -268,17 +273,17 @@ for name, p in model.named_parameters():
   else:
      weight_p += [p]
 
-model_loss, model_loss_record = train(tr_set, dv_set, model, config, device)
+model_loss, model_loss_record = train(tr_set, dv_set, model, config, device,model_1)
 
-plot_learning_curve(model_loss_record, title='deep model')
+# plot_learning_curve(model_loss_record, title='deep model')
 
-model1=model
-
+del model_1
 del model
-model = NeuralNet(tr_set.dataset.dim).to(device)
+model_1=NeuralNet(tr_set.dataset.dim).to(device)
+model = nn.DataParallel(model_1).cuda()
 ckpt = torch.load(config['save_path'], map_location='cpu')  # Load your best model
 model.load_state_dict(ckpt)
-plot_pred(dv_set, model, device)  # Show prediction on the validation set
+# plot_pred(dv_set, model, device)  # Show prediction on the validation set
 
 def save_pred(preds, file):
     ''' Save predictions to specified file '''

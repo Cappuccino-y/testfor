@@ -1,6 +1,6 @@
 import collections
 from random import random
-from random import choice
+from random import chop'y'chice
 from array import array
 import math
 import os
