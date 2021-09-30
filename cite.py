@@ -46,4 +46,5 @@ class Chinese(Person):
         print(s)
 
 m=Chinese('Chinese',12,'GSD')
+n=123
 
