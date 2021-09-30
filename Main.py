@@ -82,7 +82,6 @@ class COVID19Dataset(Dataset):
         with open(path, 'r') as fp:
             data = list(csv.reader(fp))
             data = np.array(data[1:])[:, 1:].astype(float)
-np.save
         if not target_only:
             feats = list(range(93))
         else:
