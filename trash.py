@@ -1,43 +1,38 @@
 import torch
 import torch.nn as nn
-import numpy
-import csv
-import numpy as np
-preds=[[[1,2,3,4],[3,4,5,6],[5,6,7,8]],[[4,5,6,7],[6,7,8,9],[8,9,10,11]],[[4,5,6,7],[6,7,8,9],[8,9,10,11]]]
-trial=np.array([[1,2,3],[4,5,6],[7,8,9]])
-sum1=[]
-sum2=[]
-for i,j,m in preds:
-    sum1.append(i)
-    sum2.append(j)
-sum1=torch.tensor([[[1,2,3,4],[3,4,5,6]],[[1,2,3,4],[3,4,5,6]]])
-print(sum1.size())
-sum2=torch.tensor([[[6,7],[9,10]],[[6,7],[9,10]]])
-sum3=[];
-for i,j in sum1:
-    sum3.append(i)
-    sum3.append(j)
-sum4=torch.cat(sum3,dim=0)
+import os
 
-with open('./covid.train.csv', 'r') as fp:
-    data = list(csv.reader(fp))
-    data = np.array(data[1:])[:, 1:].astype(float)
+os.environ["CUDA_VISIBLE_DEVICES"]='5'
 
-loss=nn.MSELoss(reduction='mean')
-pred=torch.tensor([[1.,2,3],[2,3,5]])
-targ=torch.tensor([[5.,3,4],[2,3,4]])
-total=loss(pred,targ)
+class NeuralNet(nn.Module):
+    ''' A simple fully-connected deep neural network '''
+    def __init__(self, input_dim):
+        super(NeuralNet, self).__init__()
 
-config = {
-    'n_epochs': 3000,                # maximum number of epochs
-    'batch_size': 270,               # mini-batch size for dataloader
-    'optimizer': 'SGD',              # optimization algorithm (optimizer in torch.optim)
-    'optim_hparas': {                # hyper-parameters for the optimizer (depends on which optimizer you are using)
-        'lr': 0.001,                 # learning rate of SGD
-        'momentum': 0.9              # momentum for SGD
-    },
-    'early_stop': 200,               # early stopping epochs (the number epochs since your model's last improvement)
-    'save_path': 'models/model.pth'  # your model will be saved here
-}
-optimizer = getattr(torch.optim, config['optimizer'])
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim,68),
+            nn.ReLU(),
+            nn.Linear(68, 1)
+        )
 
+        # Mean squared error loss
+        self.criterion = nn.MSELoss(reduction='mean')
+
+    def forward(self, x):
+        ''' Given input of size (batch_size x input_dim), compute output of the network '''
+        return self.net(x).squeeze(1)
+
+    def cal_loss(self, pred, target):
+        ''' Calculate loss '''
+        # TODO: you may implement L1/L2 regularization here
+        return self.criterion(pred, target)**0.5
+x = torch.ones(5,3)
+if torch.cuda.is_available():
+    device = torch.device("cuda:0")          # a CUDA 设备对象
+    y = torch.ones_like(x, device=device)  # 直接从GPU创建张量
+    x = x.to(device)                       # 或者直接使用``.to("cuda")``将张量移动到cuda中
+    z = x + y
+    print(z)
+    print(z.to("cpu", torch.double))       # ``.to`` 也会对变量的类型做更改

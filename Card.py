@@ -1,13 +1,13 @@
 import collections
-from random import random
-from random import chop'y'chice
 from array import array
+from random import choice,random
 import math
 import os
 import numpy as np
 import bisect
 import copy
 import sys
+
 
 Card = collections.namedtuple('Card', 'rank suit')
 
@@ -32,8 +32,8 @@ def spades_high(card):
     rank_value=FrenchDeck.ranks.index(card.rank)
     return rank_value*len(suit_value)+suit_value[card.suit]
 
-# for card in sorted(deck,key=lambda x:spades_high(x)):
-#     print(card)
+for card in sorted(deck,key=lambda x:spades_high(x)):
+    print(card)
 
 class Vector:
     def __init__(self,x=0,y=-0):
