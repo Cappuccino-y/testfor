@@ -164,7 +164,7 @@ class NeuralNet(nn.Module):
 
     def forward(self, x):
         ''' Given input of size (batch_size x input_dim), compute output of the network '''
-        return self.net(x).squeeze(1)
+        return self.net(x)
 
     def cal_loss(self, pred, target):
         ''' Calculate loss '''
