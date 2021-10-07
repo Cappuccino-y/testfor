@@ -21,18 +21,17 @@ class Person(object):
     def __init__(self, name, age, weight):
         self.name = name
         self.age = age
-        self.weight = 'weight'
+        self.weight = weight
 
-    def talk(self):
-        print("person is talking....")
+    def talk(self,w):
+        print("person is talking {0:.2f}".format(w))
 
 
 
 class Chinese(Person):
 
-    def __init__(self,name,age,language,weight):
-
-
+    def __init__(self,age,name,weight,language):
+        super(Chinese, self).__init__(name,age,weight)
         self.language=language
 
     def walk(self):
@@ -42,16 +41,10 @@ class Chinese(Person):
         print(s)
 
 
-m=Chinese('Chinese',12,'GSD',0)
-n=123
-
 class FYI():
     def __init__(self):
-        self.x=Chinese('Chinese',12,'GSD',12)
-    def trial(self):
-        n=self.x(2)
-
-
-
+        self.x=Chinese(32,'LYY',12,'c')
+    def __call__(self,m):
+        return self.x(m)
 
 Q=FYI()

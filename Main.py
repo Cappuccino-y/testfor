@@ -9,10 +9,10 @@ import csv
 import os
 
 # For plotting
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure
+# import matplotlib.pyplot as plt
+# from matplotlib.pyplot import figure
 
-os.environ["CUDA_VISIBLE_DEVICES"]='0,3,4'
+os.environ["CUDA_VISIBLE_DEVICES"]='1,2'
 
 tr_path = 'covid.train.csv'  # path to training data
 tt_path = 'covid.test.csv'   # path to testing data
@@ -72,7 +72,6 @@ def plot_pred(dv_set, model, device, lim=35., preds=None, targets=None):
     plt.title('Ground Truth v.s. Prediction')
     plt.show()
 
-
 class COVID19Dataset(Dataset):
     ''' Dataset for loading and preprocessing the COVID19 dataset '''
 
@@ -113,7 +112,6 @@ class COVID19Dataset(Dataset):
             # Convert data into PyTorch tensors
             self.data = torch.FloatTensor(data[indices])
             self.target = torch.FloatTensor(target[indices])
-
         # Normalize features (you may remove this part to see what will happen)
         self.data[:, 40:] =\
             (self.data[:, 40:] - self.data[:, 40:].mean(dim=0, keepdim=True)) \
