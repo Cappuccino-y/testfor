@@ -5,7 +5,7 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor, Lambda, Compose
 import os
 # import matplotlib.pyplot as plt
-os.environ["CUDA_VISIBLE_DEVICES"]='0,1,2,3,4,5,6,7'
+# os.environ["CUDA_VISIBLE_DEVICES"]='0,1,2,3,4,5,6,7'
 # Download training data from open datasets.
 training_data = datasets.FashionMNIST(
     root="data",
@@ -50,7 +50,7 @@ class NeuralNetwork(nn.Module):
         )
 
     def forward(self, x):
-        x = torch.flatten(x)
+        x = torch.flatten(x,start_dim=1)
         logits = self.linear_relu_stack(x)
         return logits
 
@@ -96,7 +96,7 @@ def test(dataloader, model, loss_fn):
 
 epochs = 5
 for t in range(epochs):
-    print(f"Epoch {t+1}\n-------------------------------")
+    print(f"E poch {t+1}\n-------------------------------")
     train(train_dataloader, model, loss_fn, optimizer)
     test(test_dataloader, model, loss_fn)
 print("Done!")
@@ -106,7 +106,7 @@ torch.save(model.state_dict(), "models_fornovice/model.pth")
 print("Saved PyTorch Model State to model.pth")
 
 model = NeuralNetwork()
-model.load_state_dict(torch.load("model.pth"))
+model.load_state_dict(torch.load("models_fornovice/model.pth"))
 
 classes = [
     "T-shirt/top",
@@ -121,7 +121,6 @@ classes = [
     "Ankle boot",
 ]
 
-model.eval()
 x, y = test_data[0][0], test_data[0][1]
 with torch.no_grad():
     pred = model(x)
