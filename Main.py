@@ -288,7 +288,7 @@ def save_pred(preds, file):
     print('Saving results to {}'.format(file))
     with open(file, 'w') as fp:
         writer = csv.writer(fp)
-        writer.writerow(['id', 'tested_positive'])
+        writer.writerow(['id', 'teste d_positive'])
         for i, p in enumerate(preds):
             writer.writerow([i, p])
 

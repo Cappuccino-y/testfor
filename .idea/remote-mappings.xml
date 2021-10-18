@@ -3,13 +3,7 @@
   <component name="RemoteMappingsManager">
     <list>
       <list>
-        <remote-mappings server-id="python@sftp://anonym5@10.15.190.252:22/data/anonym5/anaconda3/bin/python3.7">
-          <settings>
-            <list>
-              <mapping local-root="$PROJECT_DIR$" remote-root="/tmp/pycharm_project_309" />
-            </list>
-          </settings>
-        </remote-mappings>
+        <remote-mappings server-id="python@sftp://anonym5@10.15.190.252:22/data/anonym5/anaconda3/bin/python3.7" />
       </list>
     </list>
   </component>
